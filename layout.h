@@ -1,5 +1,5 @@
-#ifndef QT_LAYOUT_LAYOUT_H
-#define QT_LAYOUT_LAYOUT_H
+#ifndef QTL_LAYOUT_H
+#define QTL_LAYOUT_H
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -17,14 +17,14 @@ auto layout() {
     auto layout = std::make_unique<Layout>();
 
     auto widgets_smart = std::make_tuple(std::make_unique<Widgets>()...);
-    auto widgets_dumb = std::apply([&layout](auto&... smart) {
+    auto widgets_dumb = std::apply([&layout](auto&&... smart) {
         auto dumb = std::make_tuple(smart.get()...);
         (layout->addWidget(smart.release()), ...);
         return dumb;
     }, widgets_smart);
 
     parent->setLayout(layout.release());
-    return std::make_pair(std::move(parent), widgets_dumb);
+    return std::make_pair(std::move(parent), std::move(widgets_dumb));
 }
 
 template<class... Widgets>
@@ -40,4 +40,4 @@ auto vertical() {
 
 } // namespace qtl
 
-#endif // QT_LAYOUT_LAYOUT_H
+#endif // QTL_LAYOUT_H

@@ -1,5 +1,5 @@
-#ifndef QT_LAYOUT_MAIN_WINDOW_H
-#define QT_LAYOUT_MAIN_WINDOW_H
+#ifndef QTL_MAIN_WINDOW_H
+#define QTL_MAIN_WINDOW_H
 
 #include "layout.h"
 
@@ -20,4 +20,4 @@ public:
 };
 
 
-#endif // QT_LAYOUT_MAIN_WINDOW_H
+#endif // QTL_MAIN_WINDOW_H
