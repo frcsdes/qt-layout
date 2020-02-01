@@ -11,31 +11,41 @@
 namespace qtl {
 
 
-template<class Parent, class Layout, class... Widgets>
-auto layout() {
-    auto parent = std::make_unique<Parent>();
-    auto layout = std::make_unique<Layout>();
+template<class Base, class Layout, class... Children>
+class Container : public Base {
+public:
+    Container() {
+        auto layout = std::make_unique<Layout>();
+        auto children_smart = std::make_tuple(std::make_unique<Children>()...);
 
-    auto widgets_smart = std::make_tuple(std::make_unique<Widgets>()...);
-    auto widgets_dumb = std::apply([&layout](auto&&... smart) {
-        auto dumb = std::make_tuple(smart.get()...);
-        (layout->addWidget(smart.release()), ...);
-        return dumb;
-    }, widgets_smart);
+        children_ = std::apply([&layout](auto&&... smart) {
+            auto dumb = std::make_tuple(smart.get()...);
+            (layout->addWidget(smart.release()), ...);
+            return dumb;
+        }, children_smart);
 
-    parent->setLayout(layout.release());
-    return std::make_pair(std::move(parent), std::move(widgets_dumb));
-}
+        Base::setLayout(layout.release());
+    }
 
-template<class... Widgets>
-auto horizontal() {
-    return layout<QWidget, QHBoxLayout, Widgets...>();
-}
+    template<auto Id>
+    auto child() {
+        return std::get<Id>(children_);
+    }
 
-template<class... Widgets>
-auto vertical() {
-    return layout<QWidget, QVBoxLayout, Widgets...>();
-}
+    template<auto Id1, auto Id2, auto... Rest>
+    auto child() {
+        return child<Id1>()->template child<Id2, Rest...>();
+    }
+
+private:
+    std::tuple<Children*...> children_;
+};
+
+template<class... Children>
+using HBox = Container<QWidget, QHBoxLayout, Children...>;
+
+template<class... Children>
+using VBox = Container<QWidget, QVBoxLayout, Children...>;
 
 
 } // namespace qtl
